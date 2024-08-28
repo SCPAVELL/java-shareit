@@ -20,9 +20,9 @@ public class ErrorHandler {
 	}
 
 	@ExceptionHandler
-	@ResponseStatus(HttpStatus.NOT_FOUND)
+	@ResponseStatus(HttpStatus.FORBIDDEN)
 	public Map<String, String> handleAccessDenied(final AccessDeniedException e) {
-		return Map.of("Ошибка доступа", e.getMessage());
+		return Map.of("Доступ запрещен", e.getMessage());
 	}
 
 	@ExceptionHandler

@@ -1,12 +1,12 @@
 package ru.practicum.shareit.booking.dto;
 
 import lombok.AllArgsConstructor;
+
 import lombok.Builder;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.dto.UserDto;
-
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import jakarta.validation.constraints.NotNull;
 
@@ -22,8 +22,8 @@ public class BookingDto {
 	@NotNull(message = "Несуществующий пользователь не может совершать бронирование")
 	private UserDto booker;
 	@NotNull(message = "Для бронирования нужно выбрать дату начала")
-	private LocalDate start;
+	private LocalDateTime start;
 	@NotNull(message = "Для бронирования нужно выбрать дату конца")
-	private LocalDate end;
+	private LocalDateTime end;
 	private BookingStatus status;
 }

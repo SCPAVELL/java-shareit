@@ -28,6 +28,11 @@ public class ItemServiceImpl implements ItemService {
 			throw new ValidationException("Предмет не может иметь имя, статус доступа и описания со значением null");
 		}
 
+		// Проверка на существование предмета с таким же именем
+		if (items.values().stream().anyMatch(i -> i.getName().equalsIgnoreCase(item.getName()))) {
+			throw new IllegalArgumentException("Предмет с таким именем уже существует");
+		}
+
 		item.setOwner(userService.getById(ownerId));
 		idCounter++;
 		item.setId(idCounter);

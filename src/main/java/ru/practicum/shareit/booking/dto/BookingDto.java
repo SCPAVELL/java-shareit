@@ -1,29 +1,24 @@
 package ru.practicum.shareit.booking.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import ru.practicum.shareit.booking.model.BookingStatus;
-import ru.practicum.shareit.item.model.Item;
+import lombok.*;
+import ru.practicum.shareit.booking.model.Status;
+import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.user.dto.UserDto;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
-import jakarta.validation.constraints.NotNull;
-
-/**
- * TODO Sprint add-bookings.
- */
-@Builder
+@Getter
+@Setter
+@EqualsAndHashCode
 @AllArgsConstructor
+@NoArgsConstructor
 public class BookingDto {
 	private Long id;
-	@NotNull(message = "Нельзя забронировать несуществующий предмет")
-	private Item item;
-	@NotNull(message = "Несуществующий пользователь не может совершать бронирование")
+	private LocalDateTime start;
+	private LocalDateTime end;
+	private ItemDto item;
+	private Long itemId;
 	private UserDto booker;
-	@NotNull(message = "Для бронирования нужно выбрать дату начала")
-	private LocalDate start;
-	@NotNull(message = "Для бронирования нужно выбрать дату конца")
-	private LocalDate end;
-	private BookingStatus status;
+	private Long bookerId;
+	private Status status;
 }

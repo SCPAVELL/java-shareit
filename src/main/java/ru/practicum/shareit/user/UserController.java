@@ -1,50 +1,52 @@
 package ru.practicum.shareit.user;
 
-import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserService;
+import ru.practicum.shareit.user.utils.UserApiPathConstants;
 
 import java.util.List;
 
+/**
+ * TODO Sprint add-controllers.
+ */
+@Validated
+@RequiredArgsConstructor
 @RestController
-@RequestMapping(path = "/users")
-@Slf4j
-@AllArgsConstructor
+@RequestMapping(UserApiPathConstants.USERS_PATH)
 public class UserController {
-	private final UserService userService;
-
-	@PostMapping
-	public ResponseEntity<UserDto> create(@Valid @RequestBody UserDto userDto) {
-		log.info("Post-запрос на добавление пользователя");
-		return ResponseEntity.ok().body(userService.create(userDto));
-	}
-
-	@PatchMapping("/{userId}")
-	public ResponseEntity<UserDto> update(@RequestBody UserDto userDto, @PathVariable(value = "userId") Long userId) {
-		log.info("Patch-запрос на обновление пользователя с id={}", userId);
-		return ResponseEntity.ok().body(userService.update(userDto, userId));
-	}
-
-	@GetMapping("/{userId}")
-	public ResponseEntity<UserDto> getUserById(@PathVariable Long userId) {
-		log.info("Get-запрос на получение пользователя с id={}", userId);
-		return ResponseEntity.ok().body(userService.getUserById(userId));
-	}
+	private final UserService service;
 
 	@GetMapping
-	public ResponseEntity<List<UserDto>> getAllUsers() {
-		log.info("Get-запрос на получение всех пользователей");
-		return ResponseEntity.ok().body(userService.getAllUsers());
+	public ResponseEntity<List<UserDto>> getAll() {
+		return ResponseEntity.ok(service.getAll());
 	}
 
-	@DeleteMapping("/{id}")
-	public void deleteUserById(@PathVariable Long id) {
-		log.info("Delete-запрос на удаление пользователя с id={}", id);
-		userService.deleteUserById(id);
+	@GetMapping(UserApiPathConstants.USER_ID)
+	public ResponseEntity<UserDto> getById(@Positive @PathVariable Long userId) {
+		return ResponseEntity.ok(service.getById(userId));
 	}
 
+	@PostMapping
+	public ResponseEntity<UserDto> add(@Valid @RequestBody UserDto userDto) {
+		return ResponseEntity.status(201).body(service.add(userDto));
+	}
+
+	@PatchMapping(UserApiPathConstants.USER_ID)
+	public ResponseEntity<UserDto> update(@Valid @RequestBody UserDto userDto, @Positive @PathVariable Long userId) {
+		userDto.setId(userId);
+		return ResponseEntity.ok(service.update(userDto));
+	}
+
+	@DeleteMapping(UserApiPathConstants.USER_ID)
+	public ResponseEntity remove(@PathVariable Long userId) {
+		service.remove(userId);
+		return ResponseEntity.status(204).body(null);
+	}
 }

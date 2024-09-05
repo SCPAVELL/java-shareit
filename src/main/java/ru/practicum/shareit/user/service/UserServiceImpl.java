@@ -1,57 +1,80 @@
 package ru.practicum.shareit.user.service;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.dto.UserMapper;
-import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.repository.UserRepository;
 
+import jakarta.validation.ValidationException;
+import ru.practicum.shareit.user.dto.UserDto;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.NoSuchElementException;
 
 @Service
-@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-	private final UserRepository userRepository;
-	private final UserMapper userMapper;
+	private HashMap<Long, UserDto> users = new HashMap<>();
+	private HashMap<Long, String> emails = new HashMap<>();
+	private Long idCounter = 0L;
 
 	@Override
-	public UserDto create(UserDto userDto) {
-		return userMapper.toUserDto(userRepository.save(userMapper.toUser(userDto)));
-	}
-
-	@Override
-	public UserDto update(UserDto userDto, Long userId) {
-		User updatedUser = userMapper.toUser(userDto);
-		User user = userRepository.getReferenceById(userId);
-		if (updatedUser.getName() != null) {
-			user.setName(updatedUser.getName());
+	public UserDto add(UserDto user) {
+		if (emails.containsValue(user.getEmail())) {
+			throw new IllegalArgumentException("Пользователь с таким email уже существует");
 		}
-		if (updatedUser.getEmail() != null) {
-			user.setEmail(updatedUser.getEmail());
+		if (user.getEmail() == null || user.getName() == null) {
+			throw new ValidationException("Имя и имейл юзера не должны быть null!");
 		}
-		return userMapper.toUserDto(userRepository.save(user));
+		idCounter++;
+		user.setId(idCounter);
+		users.put(idCounter, user);
+
+		emails.put(idCounter, user.getEmail());
+
+		return user;
 	}
 
 	@Override
-	public UserDto getUserById(Long userId) {
-		Optional<User> user = userRepository.findById(userId);
-		if (user.isEmpty()) {
-			throw new NotFoundException("Пользователь не найден");
+	public UserDto update(UserDto userDto) {
+		Long userId = userDto.getId();
+		if (users.containsKey(userId)) {
+			UserDto existingUser = users.get(userId);
+			if (userDto.getName() != null) {
+				existingUser.setName(userDto.getName());
+			}
+			if (userDto.getEmail() != null) {
+				if (!userDto.getEmail().equals(existingUser.getEmail()) && emails.containsValue(userDto.getEmail())) {
+					throw new IllegalArgumentException("Пользователь с таким email уже существует");
+				}
+				existingUser.setEmail(userDto.getEmail());
+				emails.put(userId, userDto.getEmail());
+			}
+			return existingUser;
+		} else {
+			throw new NoSuchElementException("Юзера с таким ID не существует");
 		}
-		return userMapper.toUserDto(user.get());
 	}
 
 	@Override
-	public List<UserDto> getAllUsers() {
-		return userRepository.findAll().stream().map(userMapper::toUserDto).collect(Collectors.toList());
+	public void remove(Long id) {
+		if (users.containsKey(id)) {
+			users.remove(id);
+			emails.remove(id);
+		} else {
+			throw new NoSuchElementException("Юзера с таким ID не существует");
+		}
 	}
 
 	@Override
-	public void deleteUserById(Long userId) {
-		userRepository.deleteById(userId);
+	public List<UserDto> getAll() {
+		return new ArrayList<>(users.values());
 	}
+
+	@Override
+	public UserDto getById(Long id) {
+		if (users.containsKey(id)) {
+			return users.get(id);
+		} else {
+			throw new NoSuchElementException("Юзера с таким ID не существует");
+		}
+	}
+
 }

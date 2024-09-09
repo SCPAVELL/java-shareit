@@ -1,7 +1,6 @@
 package ru.practicum.shareit.item.comment.dto;
 
 import jakarta.validation.constraints.NotBlank;
-
 import lombok.*;
 import ru.practicum.shareit.item.dto.ItemDto;
 

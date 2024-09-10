@@ -2,12 +2,12 @@ package ru.practicum.shareit.item.mapper;
 
 import java.time.LocalDateTime;
 
-import ru.practicum.shareit.item.ItemDto;
-import ru.practicum.shareit.item.comment.dto.CommentDto;
-import ru.practicum.shareit.item.comment.dto.CommentSaveDto;
 import ru.practicum.shareit.item.comment.model.Comment;
+import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.CommentSaveDto;
+import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.dto.UserMapper;
+import ru.practicum.shareit.user.mapper.UserMapper;
 
 public class CommentMapper {
 	public static CommentDto toCommentDto(Comment comment) {

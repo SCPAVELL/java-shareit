@@ -2,11 +2,10 @@ package ru.practicum.shareit.user.storage;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import ru.practicum.shareit.exception.ConflictException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.model.User;
-
-import org.springframework.stereotype.Component;
 
 import java.util.*;
 

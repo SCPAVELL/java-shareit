@@ -1,41 +1,42 @@
 package ru.practicum.shareit.item.comment.model;
 
 import jakarta.persistence.*;
+
 import lombok.*;
 import ru.practicum.shareit.user.model.User;
 
-import java.time.LocalDateTime;
-
 @Entity
-@Table(name = "comments")
+@Table(name = "items")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Getter
 @Setter
 @ToString
-public class Comment {
+public class Item {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	@Column(nullable = false)
-	private String text;
-	@ManyToOne
-	@JoinColumn(name = "item_id", nullable = false)
-	private Item item;
-	@ManyToOne
-	@JoinColumn(name = "author_id", nullable = false)
-	private User author;
+	private String name;
 	@Column(nullable = false)
-	private LocalDateTime created;
+	private String description;
+	@Column(name = "is_available")
+	private Boolean available;
+	@ManyToOne
+	@JoinColumn(name = "owner_id")
+	private User owner;
+	@ManyToOne
+	@JoinColumn(name = "request_id")
+	private ItemRequest request;
 
 	@Override
 	public boolean equals(Object o) {
 		if (this == o)
 			return true;
-		if (!(o instanceof Comment))
+		if (!(o instanceof Item))
 			return false;
-		return id != null && id.equals(((Comment) o).getId());
+		return id != null && id.equals(((Item) o).getId());
 	}
 
 	@Override

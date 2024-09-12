@@ -39,6 +39,6 @@ CREATE TABLE IF NOT EXISTS comments (
     text VARCHAR(512) NOT NULL,
     item_id BIGINT NOT NULL REFERENCES items (id),
     author_id BIGINT NOT NULL REFERENCES users (id),
-    created TIMESTAMP WITHOUT TIME ZONE,
+    created TIMESTAMP WITHOUT TIME ZONE DEFAULT NOW(),
     CONSTRAINT pk_comment PRIMARY KEY (id)
     );

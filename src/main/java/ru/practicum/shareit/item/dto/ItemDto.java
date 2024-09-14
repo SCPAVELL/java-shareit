@@ -1,22 +1,23 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.*;
-import ru.practicum.shareit.request.ItemRequest;
-import ru.practicum.shareit.user.dto.UserDto;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-/**
- * TODO Sprint add-controllers.
- */
-@ToString
-@Getter
-@Setter
+@Data
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class ItemDto {
 	private Long id;
+	@NotEmpty
 	private String name;
+	@NotEmpty
 	private String description;
-	private UserDto owner;
+	@NotNull
 	private Boolean available;
-	private ItemRequest request;
+	private Long request;
 }

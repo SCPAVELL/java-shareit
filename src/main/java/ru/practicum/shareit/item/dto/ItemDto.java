@@ -1,23 +1,29 @@
 package ru.practicum.shareit.item.dto;
 
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import ru.practicum.shareit.item.storage.OnCreate;
 
 @Data
-@Builder
+@Builder(toBuilder = true)
 @AllArgsConstructor
-@NoArgsConstructor
 public class ItemDto {
+
 	private Long id;
-	@NotEmpty
+
+	@NotBlank(groups = OnCreate.class, message = "Название предмета не может быть пустым")
 	private String name;
-	@NotEmpty
+
+	@NotBlank(groups = OnCreate.class, message = "Описание не может быть пустым")
 	private String description;
-	@NotNull
+
+	@NotNull(groups = OnCreate.class, message = "Доступность предмета не может быт null")
 	private Boolean available;
-	private Long request;
+
+	private Long ownerId;
+
+	private Long requestId;
+
 }

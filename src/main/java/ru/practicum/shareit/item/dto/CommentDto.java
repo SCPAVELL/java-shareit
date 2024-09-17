@@ -6,13 +6,20 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
+import jakarta.validation.constraints.NotBlank;
+
 @Data
 @AllArgsConstructor
-@Builder
+@Builder(toBuilder = true)
 public class CommentDto {
 	private Long id;
+
+	@NotBlank
 	private String text;
-	private Long itemId;
+
+	private ItemDto item;
+
 	private String authorName;
+
 	private LocalDateTime created;
 }

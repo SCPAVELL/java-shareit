@@ -1,45 +1,37 @@
 package ru.practicum.shareit.item.comment.model;
 
-import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+
+import jakarta.persistence.*;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "comments")
-@NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@NoArgsConstructor
 @Getter
 @Setter
-@ToString
+@Builder(toBuilder = true)
+@Entity
+@Table(name = "comments")
 public class Comment {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	@Column(nullable = false)
+
+	@Column(name = "text", nullable = false)
 	private String text;
-	@ManyToOne
-	@JoinColumn(name = "item_id", nullable = false)
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "item_id")
 	private Item item;
-	@ManyToOne
-	@JoinColumn(name = "author_id", nullable = false)
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "author_id")
 	private User author;
-	@Column(nullable = false)
+
+	@CreationTimestamp
+	@Column(name = "created", nullable = false)
 	private LocalDateTime created;
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o)
-			return true;
-		if (!(o instanceof Comment))
-			return false;
-		return id != null && id.equals(((Comment) o).getId());
-	}
-
-	@Override
-	public int hashCode() {
-		return getClass().hashCode();
-	}
 }

@@ -1,39 +1,36 @@
 package ru.practicum.shareit.request.model;
 
-import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+
+import jakarta.persistence.*;
 import ru.practicum.shareit.user.model.User;
 
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "requests")
-@NoArgsConstructor
+/**
+ * TODO Sprint add-item-requests.
+ */
 @AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
-@ToString
+@Builder(toBuilder = true)
+@Entity
+@Table(name = "item_requests")
 public class ItemRequest {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
+
+	@Column(name = "description")
 	private String description;
-	@ManyToOne
-	@JoinColumn(name = "requestor_id")
-	private User requestor;
-	private ZonedDateTime created = ZonedDateTime.now();
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o)
-			return true;
-		if (!(o instanceof ItemRequest))
-			return false;
-		return id != null && id.equals(((ItemRequest) o).getId());
-	}
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "requester_id")
+	private User requester;
 
-	@Override
-	public int hashCode() {
-		return getClass().hashCode();
-	}
+	@CreationTimestamp
+	@Column(name = "created")
+	private LocalDateTime created;
 }

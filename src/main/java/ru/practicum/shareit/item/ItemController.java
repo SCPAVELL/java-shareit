@@ -1,64 +1,83 @@
 package ru.practicum.shareit.item;
 
-import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import ru.practicum.shareit.item.storage.Header;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.*;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
+import ru.practicum.shareit.item.comment.model.Item;
 import ru.practicum.shareit.item.dto.CommentDto;
-import ru.practicum.shareit.item.dto.CommentSaveDto;
-import ru.practicum.shareit.item.dto.ItemAllDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.OwnerItemDto;
+import ru.practicum.shareit.item.mapper.ItemMapper;
+import ru.practicum.shareit.item.storage.OnCreate;
+import ru.practicum.shareit.item.storage.OnUpdate;
 
-import java.util.List;
+import java.util.Collection;
+import java.util.stream.Collectors;
 
-@Slf4j
 @RestController
 @RequestMapping("/items")
+@Slf4j
+@RequiredArgsConstructor
+@Validated
 public class ItemController {
 	private final ItemService itemService;
 
-	@Autowired
-	public ItemController(ItemService itemService) {
-		this.itemService = itemService;
-	}
-
 	@PostMapping
-	public ItemDto createItem(@RequestHeader("X-Sharer-User-Id") Long userId, @Valid @RequestBody ItemDto itemDto) {
-		log.info("Creating new item: {}", itemDto);
-		return itemService.createItem(userId, itemDto);
+	@Validated(OnCreate.class)
+	public ItemDto postItem(@Valid @RequestBody ItemDto itemDto, @RequestHeader(Header.USER_ID) Long ownerId) {
+		log.info("Получен запрос на добавление вещи для пользователя с id={}", ownerId);
+		Item item = ItemMapper.toItem(itemDto);
+		return ItemMapper.toItemDto(itemService.addItem(item, ownerId));
 	}
 
-	@PatchMapping("/{itemId}")
-	public ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId,
-			@RequestBody ItemDto itemDto) {
-		log.info("Updating item: {}", itemDto);
-		return itemService.updateItem(userId, itemId, itemDto);
-	}
-
-	@GetMapping("/{id}")
-	public ItemAllDto getItem(@RequestHeader(value = "X-Sharer-User-Id", required = false) Long userId,
-			@PathVariable Long id) {
-		log.info("Retrieving item: {}", id);
-		return itemService.getItem(id, userId);
+	@GetMapping("/{itemId}")
+	public OwnerItemDto getItem(@PathVariable Long itemId, @RequestHeader(Header.USER_ID) Long userId) {
+		log.info("Получен запрос на просмотр вещи c id={}", itemId);
+		return itemService.getItem(itemId, userId);
 	}
 
 	@GetMapping
-	public List<ItemAllDto> getItems(@RequestHeader("X-Sharer-User-Id") Long userId) {
-		log.info("Retrieving items");
-		return itemService.getItems(userId);
+	public Collection<OwnerItemDto> getAllItems(@RequestHeader(Header.USER_ID) Long ownerId,
+			@RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
+			@RequestParam(defaultValue = "10") @Positive Integer size) {
+		log.info("Получен запрос на просмотр всех вещей пользователя id={} c {} размер {}", ownerId, from, size);
+		return itemService.getAllItems(ownerId, from, size);
+	}
 
+	@PatchMapping("/{itemId}")
+	@Validated(OnUpdate.class)
+	public ItemDto patchItem(@Valid @RequestBody ItemDto itemDto, @PathVariable Long itemId,
+			@RequestHeader(Header.USER_ID) Long ownerId) {
+		log.info("Получен запрос на обновление вещи c id={} пользователем с id={}", itemId, ownerId);
+		Item item = ItemMapper.toItem(itemDto);
+		return ItemMapper.toItemDto(itemService.updateItem(item, itemId, ownerId));
+	}
+
+	@DeleteMapping("/{itemId}")
+	public void deleteItem(@PathVariable Long itemId, @RequestHeader(Header.USER_ID) Long ownerId) {
+		log.info("Получен запрос на удаление вещи c id={} пользователем c id={}", itemId, ownerId);
+		itemService.deleteItem(itemId, ownerId);
 	}
 
 	@GetMapping("/search")
-	public List<ItemDto> searchItems(@RequestParam("text") String text) {
-		log.info("Retrieving items with text {}", text);
-		return itemService.findItems(text);
+	public Collection<ItemDto> searchItems(@RequestParam String text,
+			@RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
+			@RequestParam(defaultValue = "10") @Positive Integer size) {
+		log.info("Получен запрос на поиск доступных вещей по тексту text={} c {} размером {}", text, from, size);
+		return itemService.searchItems(text, from, size).stream().map(ItemMapper::toItemDto)
+				.collect(Collectors.toList());
 	}
 
 	@PostMapping("/{itemId}/comment")
-	public CommentDto addComment(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId,
-			@Valid @RequestBody CommentSaveDto commentDto) {
-		log.info("Adding comment: {}", commentDto);
-		return itemService.addComment(userId, itemId, commentDto);
+	public CommentDto postComment(@Valid @RequestBody CommentDto commentDto, @PathVariable Long itemId,
+			@RequestHeader(Header.USER_ID) Long userId) {
+		log.info("Получен запрос на добавление комментария к вещи={} от пользователя={}", itemId, userId);
+		return itemService.addComment(commentDto, itemId, userId);
 	}
+
 }

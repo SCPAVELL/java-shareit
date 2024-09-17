@@ -3,24 +3,20 @@ package ru.practicum.shareit.request.dto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import ru.practicum.shareit.item.dto.ItemDtoForRequest;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
-import jakarta.validation.constraints.NotBlank;
-
-/**
- * TODO Sprint add-item-requests.
- */
 @Data
 @AllArgsConstructor
 @Builder(toBuilder = true)
-public class ItemRequestDto {
-
+public class ItemRequestDtoWithItems {
 	private Long id;
 
-	@NotBlank(message = "Описание запрашиваемой вещи не может быть пустым")
 	private String description;
 
 	private LocalDateTime created;
 
+	private List<ItemDtoForRequest> items;
 }

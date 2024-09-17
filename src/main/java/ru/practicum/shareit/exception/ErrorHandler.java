@@ -1,52 +1,64 @@
 package ru.practicum.shareit.exception;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.List;
-import java.util.Map;
+import jakarta.validation.ConstraintViolationException;
 
-@RestControllerAdvice("ru.practicum.shareit")
+@Slf4j
+@RestControllerAdvice
 public class ErrorHandler {
 
-	@ExceptionHandler(NotFoundException.class)
+	@ExceptionHandler
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	public ErrorResponse handle(final MethodArgumentNotValidException e) {
+		log.warn(e.getMessage());
+		return new ErrorResponse("Ошибка валидации", e.getMessage());
+	}
+
+	@ExceptionHandler
 	@ResponseStatus(HttpStatus.NOT_FOUND)
-	public Map<String, String> handleNotFoundException(final NotFoundException ex) {
-		return Map.of("error", ex.getMessage());
+	public ErrorResponse handle(final ResourceNotFoundException e) {
+		log.warn(e.getMessage());
+		return new ErrorResponse("Ресурс не найден", e.getMessage());
 	}
 
-	@ExceptionHandler(ConflictException.class)
+	@ExceptionHandler
 	@ResponseStatus(HttpStatus.CONFLICT)
-	public Map<String, String> handleConflictException(final ConflictException ex) {
-		return Map.of("error", ex.getMessage());
+	public ErrorResponse handle(final ResourceAlreadyExistsException e) {
+		log.warn(e.getMessage());
+		return new ErrorResponse("Ресурс уже существует", e.getMessage());
 	}
 
-	@ExceptionHandler({ MethodArgumentNotValidException.class })
+	@ExceptionHandler
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
-	public List<String> handleArgumentNotValidException(final MethodArgumentNotValidException ex) {
-		return ex.getBindingResult().getFieldErrors().stream()
-				.map(fe -> "Validation error: " + fe.getDefaultMessage() + " -> field: " + fe.getField()).toList();
+	public ErrorResponse handle(final ResourceValidationException e) {
+		log.warn(e.getMessage());
+		return new ErrorResponse(e.getMessage());
 	}
 
-	@ExceptionHandler({ MissingRequestHeaderException.class })
-	@ResponseStatus(HttpStatus.BAD_REQUEST)
-	public String handleMissingRequestHeaderException(final MissingRequestHeaderException ex) {
-		return ex.getMessage();
-	}
-
-	@ExceptionHandler({ BadRequestException.class })
-	@ResponseStatus(HttpStatus.BAD_REQUEST)
-	public Map<String, String> handleBadRequestException(final RuntimeException e) {
-		return Map.of("error", e.getMessage());
-	}
-
-	@ExceptionHandler({ ForbiddenException.class })
+	@ExceptionHandler
 	@ResponseStatus(HttpStatus.FORBIDDEN)
-	public Map<String, String> handleForbiddenException(final RuntimeException e) {
-		return Map.of("error", e.getMessage());
+	public ErrorResponse handle(final PermissionDeniedException e) {
+		log.warn(e.getMessage());
+		return new ErrorResponse("Доступ запрещен", e.getMessage());
+	}
+
+	@ExceptionHandler
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	public ErrorResponse handle(final ConstraintViolationException e) {
+		log.warn(e.getMessage());
+		return new ErrorResponse("Ошибка валидации", e.getMessage());
+	}
+
+	@ExceptionHandler
+	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+	public ErrorResponse handle(final Throwable e) {
+		log.warn(e.getMessage());
+		return new ErrorResponse("Ошибка сервера", e.getMessage());
 	}
 }
